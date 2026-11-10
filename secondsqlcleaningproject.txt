@@ -1,0 +1,572 @@
+SELECT COUNT(*) AS total_rows,
+COUNT(order_id) AS Orders,
+COUNT(customer_id) AS Customer_id,
+COUNT(customer_name) AS Customer_id,
+COUNT(phone) AS phone,
+COUNT(gender) AS Gender,
+COUNT(city) AS City,
+COUNT(country) AS Country,
+COUNT(order_date) AS Order_date,
+COUNT(product_name) AS product_name,
+COUNT(email) AS email,
+COUNT(category)AS category,
+COUNT(quantity) AS quantity,
+COUNT(unit_price) AS unit_price,
+COUNT(total_amount) AS total_amount
+FROM PROJECT2.dbo.sql_cleaning
+
+SELECT COUNT(*) AS total_rows,
+COUNT(*) - COUNT(order_id) AS Missingorder_id,
+COUNT(*) - COUNT(customer_id) AS Missingcustomer_id,
+COUNT(*) - COUNT(customer_name) AS Missingcustomer_id,
+COUNT(*) - COUNT(phone) AS Missingphone_number,
+COUNT(*) - COUNT(gender) AS MissingGender,
+COUNT(*) - COUNT (city) AS Missing city,
+COUNT(*) - COUNT(country) AS Missingcountry,
+COUNT(*) - COUNT(order_date) AS Missingorder_date,
+COUNT(*) - COUNT(product_name) AS Missingproduct_name,
+COUNT(*) - COUNT(email) AS Missingemail,
+COUNT(*) - COUNT(category)AS Missingcategory,
+COUNT(*) - COUNT(quantity) AS Missingquantity,
+COUNT(*) - COUNT(unit_price) AS Missingunit_price,
+COUNT(*) - COUNT(total_amount) AS Missingtotal_amount
+FROM PROJECT2.dbo.sql_cleaning
+
+
+SELECT COUNT(*) AS total_rows,
+COUNT(*) - COUNT(order_id) AS Orders,
+COUNT(*) - COUNT(customer_id) AS Customer_id,
+COUNT(*) - COUNT(customer_name) AS Customer_id,
+COUNT(*) - COUNT(phone) AS phone,
+COUNT(*) - COUNT(gender) AS Gender,
+COUNT(*) - COUNT (city) AS City,
+COUNT(*) - COUNT(country) AS Country,
+COUNT(*) - COUNT(order_date) AS Order_date,
+COUNT(*) - COUNT(product_name) AS product_name,
+COUNT(*) - COUNT(email) AS email,
+COUNT(*) - COUNT(category)AS category,
+COUNT(*) - COUNT(quantity) AS quantity,
+COUNT(*) - COUNT(unit_price) AS unit_price,
+COUNT(*) - COUNT(total_amount) AS total_amount
+FROM PROJECT2.dbo.sql_cleaning
+
+SELECT 
+order_id
+FROM PROJECT2.DBO.sql_cleaning
+GROUP BY order_id
+HAVING COUNT(*) > 1
+
+
+
+SELECT 
+COUNT(*) AS Duplicate
+FROM (
+SELECT 
+order_id
+FROM PROJECT2.DBO.sql_cleaning
+GROUP BY order_id
+HAVING COUNT(*) > 1
+) AS duplicats
+
+SELECT*
+FROM PROJECT2.DBO.sql_cleaning
+WHERE order_id IN(
+SELECT 
+order_id
+FROM PROJECT2.DBO.sql_cleaning
+GROUP BY order_id
+HAVING COUNT(*) > 1
+)
+ORDER BY order_id DESC
+
+SELECT 
+order_id,
+customer_id,
+customer_name,
+phone,
+gender,
+city,
+country,
+order_date,
+product_name,
+email,
+category,
+quantity,
+unit_price,
+total_amount,
+COUNT(*) AS total_duplicate
+FROM PROJECT2.dbo.sql_cleaning
+GROUP BY 
+order_id,
+customer_id,
+customer_name,
+phone,
+gender,
+city,
+country,
+order_date,
+product_name,
+email,
+category,
+quantity,
+unit_price,
+total_amount
+HAVING COUNT(*) > 1
+
+--Checking inconsistent text data displaying string function in sql
+ SELECT
+  customer_name,
+    TRIM(customer_name) AS fixed_customer_name,
+  email,
+    TRIM(email) AS email,
+  city,
+  TRIM(city) AS city,
+  country,
+  TRIM(country) AS country,
+  Product_name,
+  TRIM (product_name) AS product_name,
+  category,
+  TRIM(category) AS category
+  FROM PROJECT2.dbo.sql_cleaning
+
+  SELECT 
+  country AS Original_country,
+  CASE
+  WHEN UPPER(TRIM(country)) IN ('NG','NIGERIA') THEN 'Nigeria'
+  WHEN UPPER(TRIM(country)) IN ('CA','CANADA') THEN 'Canada'
+  WHEN UPPER(TRIM(country)) IN ('US','USA' ,'UNITED STATES') THEN 'United States'
+  WHEN UPPER(TRIM(country)) IN ('UK','UNITED KINGDOM') THEN 'United kingdom'
+  WHEN UPPER(TRIM(country)) = 'GHANA' THEN 'Ghana'
+  WHEN UPPER(TRIM(country)) = 'AUSTRALIA' THEN 'Australia'
+  WHEN UPPER(TRIM(country)) = 'SOUTH AFRICA' THEN 'South Africa'
+  WHEN UPPER(TRIM(country)) = 'KENYA' THEN 'Kenya'
+  ELSE 'Country'
+  END AS Clean_country
+  FROM PROJECT2.dbo.sql_cleaning
+
+  SELECT 
+  Gender,
+  CASE
+  WHEN UPPER(TRIM(Gender)) IN ('F', 'f','FEMALE') THEN 'Female'
+  WHEN UPPER(TRIM(Gender)) IN ('M', 'm','MALE') THEN 'Male'
+  ELSE 'NULL'
+  END AS CLEAN
+  FROM PROJECT2.dbo.sql_cleaning
+
+   --Creating a new table for the data cleaning
+  SELECT *
+  INTO PROJECT2.dbo.sql_cleaning_worktable
+  FROM PROJECT2.dbo.sql_cleaning
+ 
+  SELECT 
+  'OLD' AS COL,
+  COUNT(*) AS table_Rows
+  FROM PROJECT2.dbo.sql_cleaning
+  UNION ALL
+  SELECT
+  'NEW' AS COL,
+  COUNT(*) AS table_Rows
+  FROM PROJECT2.dbo.sql_cleaning_worktable
+
+
+--- Triming and update all columns and rows
+SELECT
+customer_name,
+TRIM(customer_name) AS Clean_customername,
+Product_name,
+TRIM (Product_name) AS clean_product_name,
+gender,
+TRIM (gender) AS Clean_gender,
+country,
+TRIM(country) AS Clean_country,
+email,
+TRIM(email) AS Clean_email,
+city,
+TRIM(city) AS Clean_city
+FROM sql_cleaning_worktable
+WHERE customer_name <> TRIM(customer_name)
+OR City <> TRIM(city)
+OR country <> TRIM(country)
+OR gender <> TRIM(gender)
+OR product_name <> TRIM(product_name)
+OR email <> TRIM(email)
+OR category <> TRIM (category)
+
+UPDATE sql_cleaning_worktable
+SET
+customer_name =TRIM(customer_name),
+City =TRIM(city),
+country =TRIM(country),
+gender =TRIM(gender),
+product_name =TRIM(product_name),
+email =TRIM(email),
+category =TRIM (category)
+--updating standardizing the row data by capitalization
+UPDATE sql_cleaning_worktable
+SET
+customer_name =UPPER(customer_name),
+City =UPPER(city),
+country =UPPER(country),
+gender =UPPER(gender),
+product_name =UPPER(product_name),
+email =UPPER(email),
+category =UPPER(category)
+
+--standardizing the gender rows to have a uniform format
+UPDATE sql_cleaning_worktable
+SET gender =
+CASE
+WHEN gender IN ('F','f','female') THEN 'FEMALE'
+WHEN gender IN ('M','m','male') THEN 'MALE'
+ELSE 'NULL'
+END
+
+--standardizing the country rows to have a uniform format
+UPDATE sql_cleaning_worktable
+SET country =
+CASE
+WHEN country IN ('NG','nigeria') THEN 'NIGERIA'
+WHEN country IN ('CA','canada') THEN 'CANADA'
+WHEN country IN ('US','USA' ,'UNITED STATES') THEN 'UNITED STATES'
+WHEN country IN ('UK','UNITED KINGDOM') THEN 'UNITED KINGDOM'
+WHEN country = 'GHANA' THEN 'GHANA'
+WHEN country = 'Australia'THEN 'AUSTRALIA'
+WHEN country = 'south africa' THEN 'SOUTH AFRICA'
+WHEN country = 'kenya' THEN 'KENYA'
+ELSE 'NULL'
+END
+
+
+
+UPDATE sql_cleaning_worktable
+SET email = LOWER(TRIM (email))
+WHERE email IS NOT NULL
+
+SELECT
+COUNT(*) AS Total_record,
+SUM(
+	CASE
+	WHEN email IS NULL OR email = '' THEN 1
+	ELSE 0
+	END )AS Missing_email
+FROM sql_cleaning_worktable
+
+SELECT
+COUNT(*) -COUNT(Email) AS EM
+FROM sql_cleaning_worktable
+
+--VERIFY CLEAN EMAIL
+SELECT order_id,
+customer_name,
+email
+FROM sql_cleaning_worktable
+WHERE email IS NOT NULL
+AND email <> ''
+AND (
+email NOT LIKE '%_@_%_%'
+OR email LIKE '%%'
+OR email LIKE '%@%@%'
+);
+
+SELECT
+EMAIL,
+COUNT(*) AS total
+FROM sql_cleaning_worktable
+GROUP BY email
+ORDER BY email DESC
+
+UPDATE sql_cleaning_worktable
+SET phone =
+REPLACE(
+     REPLACE( 
+        REPLACE( REPLACE(TRIM(Phone), '-', ''),'(', ''), 
+		
+		')', ''), ' ', '')
+WHERE phone IS NOT NULL
+--Counting the missing phone number
+SELECT
+COUNT(*) AS Total_record,
+SUM(
+	CASE
+	WHEN phone IS NULL OR phone = '' THEN 1
+	ELSE 0
+	END )AS Missing_phone
+FROM sql_cleaning_worktable
+--Identify suspicious phone number
+SELECT 
+order_id,
+customer_name,
+phone,
+LEN(
+   REPLACE(phone,'+','')
+   ) AS Phone_length
+FROM sql_cleaning_worktable
+WHERE phone IS NOT NULL
+AND phone <> ''
+AND (
+    LEN(REPLACE(phone, '+', '')) < 7
+OR LEN(REPLACE(phone, '+', '')) > 15
+OR phone LIKE '%[^0-9+]%'
+)
+ORDER BY Phone_length DESC
+
+-- updating the order date column
+SELECT
+ COLUMN_NAME,
+ DATA_TYPE
+ FROM PROJECT2.INFORMATION_SCHEMA.COLUMNS
+ WHERE TABLE_NAME = 'sql_cleaning_worktable'
+ AND COLUMN_NAME = 'Order_date'
+
+
+SELECT
+ COLUMN_NAME,
+ DATA_TYPE
+ FROM PROJECT2.INFORMATION_SCHEMA.COLUMNS
+ WHERE TABLE_NAME = 'sql_cleaning_worktable'
+ AND COLUMN_NAME IN 
+ ('quantity',
+ 'unit_price',
+ 'total_amount'
+ );
+
+
+ SELECT
+ order_id,
+ product_name,
+ quantity
+ FROM sql_cleaning_worktable
+ WHERE quantity IS NULL
+ OR quantity = 1
+ OR quantity = 100
+ ORDER BY quantity DESC
+ 
+ SELECT *
+ FROM sql_cleaning_worktable
+ WHERE unit_price  IS NULL
+
+ ---suspicious  order total
+ SELECT order_id,
+ quantity,
+ unit_price,
+ product_name,
+ total_amount
+ FROM sql_cleaning_worktable
+ WHERE total_amount IS NULL
+ OR total_amount = 0
+ OR total_amount > =1
+ OR total_amount > = 100
+ ORDER BY total_amount DESC
+
+ SELECT 
+ order_id,
+ product_name,
+ quantity,
+ unit_price,
+ total_amount,
+ quantity * unit_price AS expected_amount,
+ ABS(total_amount - (quantity * unit_price)) AS differences
+ FROM sql_cleaning_worktable
+ WHERE quantity IS NOT NULL
+ AND unit_price IS NOT NULL
+ AND total_amount IS NOT NULL
+ AND ABS(total_amount - (quantity * unit_price)) > 0.01
+ ORDER BY differences DESC
+
+ SELECT 
+ order_id,
+ product_name,
+ quantity,
+ unit_price,
+ total_amount,
+ CAST(quantity AS DECIMAL(18, 2)) * CAST(unit_price AS DECIMAL(18, 2)) AS expected_amount,
+ ABS(CAST(total_amount AS DECIMAL(18, 2)) - (CAST(quantity AS DECIMAL(18, 2))
+
+ *CAST(unit_price AS DECIMAL(18, 2)) )
+ ) AS differences
+ FROM sql_cleaning_worktable
+
+ WHERE quantity IS NOT NULL
+ AND unit_price IS NOT NULL
+ AND ABS(
+        CAST(total_amount AS DECIMAL(18, 2))
+        -(
+        CAST(total_amount AS DECIMAL(18, 2))
+        *CAST(unit_price AS DECIMAL(18, 2))
+        )
+        ) > 0.01
+       ORDER BY differences DESC;
+     
+
+
+--seperating our data from good and bad
+ ALTER TABLE PROJECT2.DBO.sql_cleaning_worktable
+ ADD data_quality_flag VARCHAR(100) NULL;
+
+ UPDATE sql_cleaning_worktable
+ SET data_quality_flag =
+     CASE 
+     WHEN quantity IS NULL
+         THEN 'MISSING QUANTITY'
+         WHEN quantity <= 0
+           THEN 'INVALID QUANTITY'
+           WHEN quantity > 100
+             THEN 'HIGH QUANTITY'
+            WHEN unit_price IS NULL
+             THEN  'MISSING UNIT PRICE'
+            WHEN unit_price <= 0
+             THEN 'INVALID UNIT PRICE'
+            WHEN total_amount IS NULL
+             THEN 'MISSING TOTAL'
+            WHEN total_amount < 0
+             THEN 'NEGATIVE TOTAL'
+            WHEN total_amount > 10000
+             THEN 'HIGH TOTAL'
+            WHEN quantity IS NOT NULL
+             AND unit_price IS NOT NULL
+             AND total_amount IS NOT NULL
+             AND ABS(total_amount - (quantity * unit_price)) > 0.01
+             THEN 'TOTAL MISMATCH'
+             ELSE 'PASS'
+             END;
+SELECT 
+COUNT(*) AS Duplicate
+FROM (
+SELECT 
+phone
+FROM PROJECT2.DBO.sql_cleaning_worktable
+GROUP BY phone
+HAVING COUNT(*) > 1
+) AS duplicats
+
+
+SELECT 
+phone
+FROM PROJECT2.DBO.sql_cleaning_worktable
+GROUP BY phone
+HAVING COUNT(*) > 1
+
+SELECT 
+order_id, 
+COUNT(*) AS DU
+FROM PROJECT2.DBO.sql_cleaning_worktable
+GROUP BY order_id
+HAVING COUNT(*) > 1
+ORDER BY DU DESC
+
+
+SELECT 
+order_id,
+customer_id,
+customer_name,
+phone,
+gender,
+city,
+country,
+order_date,
+product_name,
+email,
+category,
+quantity,
+unit_price,
+total_amount
+COUNT(*) AS total_duplicate
+FROM PROJECT2.dbo.sql_cleaning_worktable
+GROUP BY 
+order_id,
+customer_id,
+customer_name,
+phone,
+gender,
+city,
+country,
+order_date,
+product_name,
+email,
+category,
+quantity,
+unit_price,
+total_amount
+HAVING COUNT(*) > 1
+
+WITH DUPLICATE_DATA AS
+( SELECT
+COUNT(*) AS total_duplicate
+FROM PROJECT2.dbo.sql_cleaning_worktable
+GROUP BY 
+order_id,
+customer_id,
+customer_name,
+phone,
+gender,
+city,
+country,
+order_date,
+product_name,
+email,
+category,
+quantity,
+unit_price,
+total_amount
+HAVING COUNT(*) > 1
+)
+SELECT
+SUM(total_duplicate) AS duplicaterows,
+SUM(total_duplicate -1) AS EXCESS
+FROM DUPLICATE_DATA
+
+
+WITH Rackrow AS (    
+SELECT *,
+    ROW_NUMBER() OVER(PARTITION BY
+    order_id,
+    customer_id,
+    customer_name,
+    email,
+    phone,
+    gender,
+    city,
+    country,
+    order_date,
+    product_name,
+    category,
+    quantity,
+    unit_price,
+    total_amount
+    ORDER BY order_id
+     ) AS row_num
+    FROM sql_cleaning_worktable
+    )
+    DELETE FROM Rackrow
+    WHERE row_num >1;
+
+    SELECT COUNT(*) AS ROWS_delete
+    FROM sql_cleaning_worktable
+
+
+ SELECT 
+    SUM(CASE WHEN customer_id IS NULL THEN 1 ELSE 0 END) AS Missing_customer_id,
+    SUM(CASE WHEN product_name IS NULL OR TRIM(product_name) = '' THEN 1 ELSE 0 END) AS Missing_product,
+    SUM(CASE WHEN country IS NULL OR TRIM(country) = '' THEN 1 ELSE 0 END) AS Missing_country,
+    SUM(CASE WHEN quantity IS NULL THEN 1 ELSE 0 END) AS Missing_quantity,
+    SUM(CASE WHEN unit_price IS NULL THEN 1 ELSE 0 END) AS Missing_unit_price,
+    SUM(CASE WHEN total_amount IS NULL THEN 1 ELSE 0 END) AS Missing_total_amount
+  FROM sql_cleaning_worktable
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
