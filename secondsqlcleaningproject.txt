@@ -1,3 +1,4 @@
+
 SELECT COUNT(*) AS total_rows,
 COUNT(order_id) AS Orders,
 COUNT(customer_id) AS Customer_id,
